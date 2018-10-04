@@ -22,6 +22,7 @@ public:
 	//void Apply_Particle_Force(const Particle & p);
 	Float Get_U(Float x, Float y);
 	Float Get_V(Float x, Float y);
+	void Apply_Boundary_Condition(void);
 	int U_Linear_ID(int i, int j);
 	int V_Linear_ID(int i, int j);
 	int P_Linear_ID(int i, int j);

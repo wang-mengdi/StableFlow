@@ -21,6 +21,32 @@ Float Solver::Get_V(Float x, Float y) {
 	return Interpolate(V, x, y + 0.5);
 }
 
+void Solver::Apply_Boundary_Condition(void) {
+	//Apply Boundary Condition of U
+	int n = U.rows(), m = U.cols();
+	for (int i = 1; i < n - 1; i++) {
+		U(0, i) = -U(1, i);
+		U(n - 1, i) = -U(n - 2, i);
+		U(i, 0) = U(i, 1);
+		U(i, m - 1) = U(i, m - 2);
+	}
+	U(0, 0) = -U(1, 1);
+	U(0, m - 1) = -U(1, m - 2);
+	U(n - 1, 0) = -U(n - 2, 1);
+	U(n - 1, m - 1) = -U(n - 2, m - 2);
+	//Apply Boundary Condition of V
+	n = V.rows(), m = V.cols();
+	for (int i = 1; i < n - 1; i++) {
+		V(0, i) = V(1, i);
+		V(n - 1, i) = V(n - 2, i);
+		V(i, 0) = -V(i, 1);
+		V(i, m - 1) = -V(i, m - 2);
+	}
+	V(0, 0) = -V(1, 1);
+	V(0, m - 1) = -V(1, m - 2);
+	V(n - 1, 0) = -V(n - 2, 1);
+	V(n - 1, m - 1) = -V(n - 2, m - 2);
+}
 
 Grid Solver::Advect_U(void) {
 	int n = U.rows(), m = U.cols();
@@ -216,7 +242,7 @@ void Solver::Velocity_Step(void) {
 
 }
 
-void Solver::Step_Fluid(void) {
+void Solver::Step_Fluid(void) { 
 	Grid U0 = U;
 	Grid V0 = V;
 	step_time++;

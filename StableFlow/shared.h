@@ -40,13 +40,16 @@ const Float DY = 0.01;
 const Float H = 0.01;
 const Float DT = 0.1;
 const Float rho = 1;
-const Float miu = 0.01;
+const Float visc = 0.01;
+const Float diff = 0.01;
+
+const int JACOBI_STEP = 20;
 
 enum DIFFTYPE { FORWARD, BACKWARD, CENTER };
 enum MASKTYPE { VALID, INVALID };
-enum AXIS { X, Y };
+enum AXIS { X, Y, N }; //N=neutral
 
-const int TOTAL_SCREEN = 3;
+const int TOTAL_SCREEN = 2;
 
 const Float SCALE = 4;
 const int SHOWW = MESHW*SCALE, SHOWH = MESHH*SCALE*TOTAL_SCREEN;

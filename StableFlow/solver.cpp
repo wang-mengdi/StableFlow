@@ -25,31 +25,29 @@ void Solver::Init(void) {
 	V1.setZero();
 	P.resize(MESHH, MESHW);
 	P.setZero();
+	div.resize(MESHH, MESHW);
+	div.setZero();
 	FU.resize(MESHH, MESHW);
 	FU.setZero();
 	FV.resize(MESHH, MESHW);
 	FV.setZero();
 }
 
-void Solver::Paint_Density_Field(const Grid &density, int screenid) {
+void Solver::Draw_Colors(int screenid) {
 	glBegin(GL_POINTS);
-	Float mx = -1;
-	for (int j = 0; j < MESHH; j++) {
-		for (int k = 0; k < MESHW; k++) {
-			mx = max(mx, fabs(density(j, k)));
-		}
-	}
-	mx = max(mx, (Float)0.0005);
-	cout << "max density: "<<mx << endl;
 	for (int is = 0; is < MESHH*SCALE; is++) {
 		for (int js = 0; js < MESHW*SCALE; js++) {
 			int i = (is + 0.0) / SCALE;
 			int j = (js + 0.0) / SCALE;
 			Float x = is, y = js;
 			ScreenCoor_to_ClipCoor(x, y, screenid);
-			Float d = fabs(density(i, j) / mx);
-			//if (d != 0) printf("%f ", d);
-			glColor3f(d, d, d);
+			Float rgb[3] = { 0,0,0 };
+			for (int c = 0; c < colors.size(); c++) {
+				for (int d = 0; d < 3; d++) {
+					rgb[d] += colors[c].rgb[d] * colors[c].dens(i, j);
+				}
+			}
+			glColor3f(rgb[0], rgb[1], rgb[2]);
 			glVertex2f(x, y);
 		}
 	}
@@ -57,7 +55,7 @@ void Solver::Paint_Density_Field(const Grid &density, int screenid) {
 	glFlush();
 }
 
-void Solver::Paint_Velocity_Field(const Grid &U, const Grid &V, int screenid) {
+void Solver::Draw_Velocity_Field(const Grid &U, const Grid &V, int screenid) {
 	Float vel_scale = 10;
 	int stride = 1;
 	//cout << U << endl;
@@ -83,13 +81,22 @@ void Solver::Paint_Velocity_Field(const Grid &U, const Grid &V, int screenid) {
 	}
 }
 
-void Solver::Paint(void) {
-	Paint_Velocity_Field(U, V, 0);
-	Paint_Density_Field(P, 1);
-	Paint_Velocity_Field(U1, V1, 2);
+void Solver::Draw(void) {
+	Draw_Velocity_Field(U, V, 0);
+	Draw_Colors(1);
 }
 
 void Solver::Step() {
 	//Apply_Particles(particles);
 	Step_Fluid();
+}
+
+void Dye::Init(int _r, int _g, int _b){
+	rgb[0] = _r;
+	rgb[1] = _g;
+	rgb[2] = _b;
+	dens.resize(MESHH, MESHW);
+	dens.setZero();
+	src.resize(MESHH, MESHW);
+	src.setZero();
 }

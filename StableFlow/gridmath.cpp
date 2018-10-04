@@ -17,10 +17,6 @@ Float Interpolate(const Grid &A, Float x, Float y) {
 	Float xs = x - xi1, ys = y - yi1;
 
 	int n = A.rows(), m = A.cols();
-	if (xi1 < 0) xi1 += n;
-	if (xi2 >= n) xi2 -= n;
-	if (yi1 < 0) yi1 += m;
-	if (yi2 >= m) yi2 -= m;
 
 	Assert(0 <= xi1 && xi1 < n, "xi1 out of range");
 	Assert(0 <= xi2 && xi2 < n, "xi2 out of range");

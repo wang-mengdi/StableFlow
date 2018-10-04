@@ -1,6 +1,8 @@
 #pragma once
 #include "shared.h"
 
+void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d);
+
 void Truncate_Index(const Grid &A, int &i, int &j);
 Float Interpolate(const Grid &A, Float x, Float y);
 

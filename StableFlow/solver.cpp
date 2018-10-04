@@ -87,11 +87,10 @@ void Solver::Draw(void) {
 }
 
 void Solver::Step() {
-	//Apply_Particles(particles);
 	Step_Fluid();
 }
 
-void Dye::Init(int _r, int _g, int _b){
+Dye::Dye(int _r, int _g, int _b){
 	rgb[0] = _r;
 	rgb[1] = _g;
 	rgb[2] = _b;

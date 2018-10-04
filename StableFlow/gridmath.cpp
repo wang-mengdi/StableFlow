@@ -1,11 +1,31 @@
 #include "gridmath.h"
 
+template<typename T>
+T Clip(T a, T mn, T mx) {
+	a = max(a, mn);
+	a = min(a, mx);
+	return a;
+}
+
 void Truncate_Index(const Grid &A, int &i, int &j) {
 	int n = A.rows(), m = A.cols();
 	i = i % n;
 	j = j % m;
 	if (i < 0) i += n;
 	if (j < 0) j += m;
+}
+
+void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d) {
+	int n = A.rows(), m = A.cols();
+	int i0 = Clip(int(x0*(n - 2)), 1, n - 2);
+	int i1 = Clip(int(x1*(n - 2)), 1, n - 2);
+	int j0 = Clip(int(y0*(m - 2)), 1, m - 2);
+	int j1 = Clip(int(y1*(m - 2)), 1, m - 2);
+	for (int i = i0; i <= i1; i++) {
+		for (int j = j0; j <= j1; j++) {
+			A(i, j) += d;
+		}
+	}
 }
 
 // Interpolate with respect to mere array index.

@@ -40,15 +40,37 @@ void Solver::Diffuse(AXIS ax, Grid &x, const Grid &b, Float diff) {
 	Jacobi_Solve(x, b, a, 1 + 4 * a, ax);
 }
 
-void Advect(AXIS ax, Grid &q, Grid &q0, const Grid &U, const Grid &V) {
+void Advect(AXIS ax, Grid &q, const Grid &q0, const Grid &U, const Grid &V) {
 	int n = q.rows(), m = q.cols();
 	for (int i = 1; i < n - 1; i++) {
 		for (int j = 1; j < m - 1; j++) {
 			Float x = i - DT * U(i, j), y = j - DT * V(i, j);
+			x = max(x, 0.5);
+			x = min(x, n - 1.5);
+			y = max(y, 0.5);
+			y = min(y, m - 1.5);
+			cout << i << " " << j << " " << x << " " << y << endl;
 			q(i, j) = Interpolate(q0, x, y);
 		}
 	}
 	Apply_Boundary_Condition(q, ax);
+}
+
+void Get_Div(const Grid &U, const Grid &V, Grid &div) {
+	int n = div.rows(), m = div.cols();
+	for (int i = 1; i < n - 1; i++) {
+		for (int j = 1; j < m - 1; j++) {
+			div(i, j) = -0.5f*(U(i + 1, j) - U(i - 1, j) + V(i, j + 1) - V(i, j - 1));
+		}
+	}
+}
+
+void Get_Pressure(Grid &P, const Grid &U, const Grid &V, Grid &div) {
+	int n = P.rows(), m = P.cols();
+	Get_Div(U, V, div);
+	Apply_Boundary_Condition(div, N);
+	P.setZero();
+	Jacobi_Solve(P, div, 1, 4, N);
 }
 
 void Update_Pressure(Grid &U, Grid &V, const Grid &P) {
@@ -63,21 +85,10 @@ void Update_Pressure(Grid &U, Grid &V, const Grid &P) {
 	Apply_Boundary_Condition(V, Y);
 }
 
-void Get_Pressure(Grid &P, const Grid &U, const Grid &V, Grid &div) {
-	int n = P.rows(), m = P.cols();
-	for (int i = 1; i < n - 1; i++) {
-		for (int j = 1; j < m - 1; j++) {
-			div(i, j) = 0.5f*(U(i + 1, j) - U(i - 1, j) + V(i, j + 1) - V(i, j - 1));
-			P(i, j) = 0;
-		}
-	}
-	Apply_Boundary_Condition(P, N);
-	Apply_Boundary_Condition(div, N);
-	Jacobi_Solve(P, div, 1, 4, N);
-}
-
 void Project(Grid &U, Grid &V, Grid &P, Grid &div) {
 	Get_Pressure(P, U, V, div);
+	cout << "max div:" << div.abs().maxCoeff() << endl;
+	cout << "max P:" << P.abs().maxCoeff() << endl;
 	Update_Pressure(U, V, P);
 }
 
@@ -89,8 +100,6 @@ void Add_Source(Grid &f, const Grid &s) {
 		}
 	}
 }
-
-
 
 void Solver::Velocity_Step(void) {
 	Add_Source(U, FU);
@@ -114,9 +123,15 @@ void Solver::Density_Step(Grid &D, const Grid &S) {
 	Advect(N, D, D0, U, V);
 }
 
-void Solver::Step_Fluid(void) { 
+void Solver::Step_Fluid(void) {
+	step_time++;
+	cout << "fluid step time " << step_time << endl;
+	cout << "velocity step"<<endl;
 	Velocity_Step();
 	for (int i = 0; i < colors.size(); i++) {
+		cout << "density step " << i << endl;
 		Density_Step(colors[i].dens, colors[i].src);
 	}
+	Get_Div(U, V, div);
+	cout << "step done, max div:" << div.abs().maxCoeff() << endl;
 }

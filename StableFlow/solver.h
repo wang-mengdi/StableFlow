@@ -11,7 +11,8 @@ public:
 	Grid dens;
 	Grid src;
 	Float rgb[3];
-	void Init(int _r, int _g, int _b);
+	Dye() {}
+	Dye(int _r, int _g, int _b);
 };
 
 class Solver {

@@ -7,6 +7,27 @@ T Clip(T a, T mn, T mx) {
 	return a;
 }
 
+ConstBlock::ConstBlock(const Grid &A, Float x0, Float x1, Float y0, Float y1, Float _d){
+	n = A.rows();
+	m = A.cols();
+	i0 = Clip(int(x0*(n - 2)), 1, n - 2);
+	i1 = Clip(int(x1*(n - 2)), 1, n - 2);
+	j0 = Clip(int(y0*(m - 2)), 1, m - 2);
+	j1 = Clip(int(y1*(m - 2)), 1, m - 2);
+	d = _d;
+}
+
+void Apply_ConstBlock(Grid &A, const ConstBlock &B) {
+	Assert(A.rows() == B.n&&A.cols() == B.m, "ConstBlock size not match");
+	for (int i = B.i0; i <= B.i1; i++) {
+		for (int j = B.j0; j <= B.j1; j++) {
+			A(i, j) = B.d;
+		}
+	}
+}
+
+
+
 void Truncate_Index(const Grid &A, int &i, int &j) {
 	int n = A.rows(), m = A.cols();
 	i = i % n;
@@ -15,17 +36,24 @@ void Truncate_Index(const Grid &A, int &i, int &j) {
 	if (j < 0) j += m;
 }
 
+void Truncate_Position(const Grid &A, Float &x, Float &y) {
+	int n = A.rows(), m = A.cols();
+	if (x < 0.5) x = 0.5;
+	if (x > n - 1.5) x = n - 1.5;
+	if (y < 0.5) y = 0.5;
+	if (y > m - 1.5) y = m - 1.5;
+}
+
+
+
 void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d) {
 	int n = A.rows(), m = A.cols();
 	int i0 = Clip(int(x0*(n - 2)), 1, n - 2);
 	int i1 = Clip(int(x1*(n - 2)), 1, n - 2);
 	int j0 = Clip(int(y0*(m - 2)), 1, m - 2);
 	int j1 = Clip(int(y1*(m - 2)), 1, m - 2);
-	for (int i = i0; i <= i1; i++) {
-		for (int j = j0; j <= j1; j++) {
-			A(i, j) += d;
-		}
-	}
+	cout << "add block: " << i0 << " " << i1 << " " << j0 << " " << j1 << endl;
+	
 }
 
 // Interpolate with respect to mere array index.
@@ -150,3 +178,5 @@ Grid Grid_S(const Grid &U, const Grid &V, const Grid &phi) {
 		throw order;
 	}
 }*/
+
+

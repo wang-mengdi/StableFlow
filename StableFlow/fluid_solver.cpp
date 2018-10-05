@@ -49,7 +49,6 @@ void Advect(AXIS ax, Grid &q, const Grid &q0, const Grid &U, const Grid &V) {
 			x = min(x, n - 1.5);
 			y = max(y, 0.5);
 			y = min(y, m - 1.5);
-			cout << i << " " << j << " " << x << " " << y << endl;
 			q(i, j) = Interpolate(q0, x, y);
 		}
 	}
@@ -96,14 +95,18 @@ void Add_Source(Grid &f, const Grid &s) {
 	int n = f.rows(), m = f.cols();
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < m; j++) {
-			f(i, j) += s(i, j)*DT;
+			f(i, j) = s(i, j);
 		}
 	}
 }
 
 void Solver::Velocity_Step(void) {
-	Add_Source(U, FU);
-	Add_Source(V, FV);
+	for (int i = 0; i < CUs.size(); i++) {
+		Apply_ConstBlock(U, CUs[i]);
+	}
+	for (int i = 0; i < CVs.size(); i++) {
+		Apply_ConstBlock(V, CVs[i]);
+	}
 	Grid U0 = U;
 	Grid V0 = V;
 	Diffuse(X, U, U0, visc);
@@ -115,12 +118,14 @@ void Solver::Velocity_Step(void) {
 	Project(U, V, P, div);
 }
 
-void Solver::Density_Step(Grid &D, const Grid &S) {
-	Add_Source(D, S);
-	Grid D0 = D;
-	Diffuse(N, D, D0, diff);
-	D0 = D;
-	Advect(N, D, D0, U, V);
+void Solver::Density_Step(Dye &D) {
+	for (int i = 0; i < D.srcs.size(); i++) {
+		Apply_ConstBlock(D.dens, D.srcs[i]);
+	}
+	Grid D0 = D.dens;
+	Diffuse(N, D.dens, D0, diff);
+	D0 = D.dens;
+	Advect(N, D.dens, D0, U, V);
 }
 
 void Solver::Step_Fluid(void) {
@@ -130,8 +135,9 @@ void Solver::Step_Fluid(void) {
 	Velocity_Step();
 	for (int i = 0; i < colors.size(); i++) {
 		cout << "density step " << i << endl;
-		Density_Step(colors[i].dens, colors[i].src);
+		Density_Step(colors[i]);
 	}
+	//cout << "density: " << colors[0].dens << endl;
 	Get_Div(U, V, div);
 	cout << "step done, max div:" << div.abs().maxCoeff() << endl;
 }

@@ -1,9 +1,19 @@
 #pragma once
 #include "shared.h"
 
-void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d);
+class ConstBlock {
+public:
+	int n, m;
+	int i0, i1, j0, j1;
+	Float d;
+	ConstBlock() {}
+	ConstBlock(const Grid &A, Float x0, Float x1, Float y0, Float y1, Float _d);
+};
 
-void Truncate_Index(const Grid &A, int &i, int &j);
+void Apply_ConstBlock(Grid &A, const ConstBlock &B);
+//void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d);
+
+void Truncate_Position(const Grid &A, Float &x, Float &y);
 Float Interpolate(const Grid &A, Float x, Float y);
 
 //For now we use a periodical boundary condition

@@ -34,7 +34,7 @@ typedef double Float;
 
 const Float PI = acos(-1.0);
 
-const int MESHW = 20, MESHH = 20;
+const int MESHW = 40, MESHH = 40;
 const Float DX = 0.01;
 const Float DY = 0.01;
 const Float H = 0.01;
@@ -52,7 +52,7 @@ enum AXIS { X, Y, N }; //N=neutral
 const int TOTAL_SCREEN = 2;
 
 const Float SCALE = 4;
-const int SHOWW = MESHW*SCALE, SHOWH = MESHH*SCALE*TOTAL_SCREEN;
+const int SHOWW = MESHW*SCALE, SHOWH = MESHH*SCALE;
 
 const int SHOW_FPS = 20;
 

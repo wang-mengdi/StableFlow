@@ -4,10 +4,11 @@ Solver S;
 
 void Init(void) {
 	S.Init();
-	S.colors.push_back(Dye(1, 1, 1));
-	Add_Block(S.colors[0].dens, 0.4, 0.6, 0.4, 0.6, 0.5);
-	Add_Block(S.FV, 0.4, 0.6, 0.2, 0.3, 1);
-	Add_Block(S.FV, 0.4, 0.6, 0.7, 0.8, -1);
+	Dye dwhite = Dye(1, 1, 1);
+	dwhite.Add_Src(0.4, 0.6, 0.4, 0.6, 1);
+	S.colors.push_back(dwhite);
+	S.Add_CV(0.4, 0.6, 0.2, 0.3, 10);
+	S.Add_CV(0.4, 0.6, 0.7, 0.8, -10);
 }
 
 

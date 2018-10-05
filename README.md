@@ -1,6 +1,6 @@
 # Stable Flow
 
-Jos Stam：Stable Fluid的一个版本
+An C++&OpenGL implementation Jos Stam：Stable Fluid
 
 ![p](p.png)
 

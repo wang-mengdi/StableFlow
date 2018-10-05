@@ -125,13 +125,11 @@ void Solver::Density_Step(Dye &D) {
 void Solver::Step_Fluid(void) {
 	step_time++;
 	cout << "fluid step time " << step_time << endl;
-	cout << "velocity step"<<endl;
 	Velocity_Step();
 	for (int i = 0; i < colors.size(); i++) {
-		cout << "density step " << i << endl;
 		Density_Step(colors[i]);
 	}
 	//cout << "density: " << colors[0].dens << endl;
-	Get_Div(U, V, div);
-	cout << "step done, max div:" << div.abs().maxCoeff() << endl;
+	//Get_Div(U, V, div);
+	//cout << "step done, max div:" << div.abs().maxCoeff() << endl;
 }

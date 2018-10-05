@@ -34,15 +34,15 @@ typedef double Float;
 
 const Float PI = acos(-1.0);
 
-const int MESHW = 80, MESHH = 40;
+const int MESHW = 200, MESHH = 100;
 const Float WHRATIO = MESHW / MESHH;
 const Float DX = 0.01;
 const Float DY = 0.01;
 const Float H = 0.01;
 const Float DT = 0.1;
 const Float rho = 1;
-const Float visc = 0.01;
-const Float diff = 0.01;
+const Float visc = 0;
+const Float diff = 0;
 
 const int JACOBI_STEP = 20;
 
@@ -52,7 +52,7 @@ enum AXIS { X, Y, N }; //N=neutral
 
 const int TOTAL_SCREEN = 2;
 
-const Float SCALE = 4;
+const Float SCALE = 2;
 const int SHOWW = MESHW*SCALE, SHOWH = MESHH*SCALE;
 
 const int SHOW_FPS = 20;

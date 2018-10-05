@@ -7,21 +7,55 @@ T Clip(T a, T mn, T mx) {
 	return a;
 }
 
-ConstBlock::ConstBlock(const Grid &A, Float x0, Float x1, Float y0, Float y1, Float _d){
-	n = A.rows();
-	m = A.cols();
-	i0 = Clip(int(x0*(n - 2)), 1, n - 2);
-	i1 = Clip(int(x1*(n - 2)), 1, n - 2);
-	j0 = Clip(int(y0*(m - 2)), 1, m - 2);
-	j1 = Clip(int(y1*(m - 2)), 1, m - 2);
-	d = _d;
+void ConstMask::resize(const Grid &A){
+	int n = A.rows();
+	int m = A.cols();
+	dlt.resize(n, m);
+	dlt.setZero();
+	msk.resize(n, m);
+	msk.setZero();
 }
 
-void Apply_ConstBlock(Grid &A, const ConstBlock &B) {
-	Assert(A.rows() == B.n&&A.cols() == B.m, "ConstBlock size not match");
-	for (int i = B.i0; i <= B.i1; i++) {
-		for (int j = B.j0; j <= B.j1; j++) {
-			A(i, j) = B.d;
+void ConstMask::Set_Box(Float x0, Float x1, Float y0, Float y1, Float d) {
+	int n = dlt.rows(), m = dlt.cols();
+	int i0 = Clip(int(x0*n), 0, n - 1);
+	int i1 = Clip(int(x1*n), 0, n - 1);
+	int j0 = Clip(int(y0*n), 0, m - 1);
+	int j1 = Clip(int(y1*n), 0, m - 1);
+	for (int i = i0; i <= i1; i++) {
+		for (int j = j0; j <= j1; j++) {
+			msk(i, j) = 1;
+			dlt(i, j) = d;
+		}
+	}
+}
+
+void ConstMask::Set_Ellipse(Float x0, Float y0, Float a, Float b, Float d){
+	int n = dlt.rows(), m = dlt.cols();
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			Float x1 = (i + 0.0) / n, y1 = (j + 0.0) / m;
+			Float dx = x1 - x0, dy = y1 - y0;
+			if (dx*dx*b*b + dy * dy*a*a <= a * a*b*b) {
+				msk(i, j) = 1;
+				dlt(i, j) = d;
+			}
+		}
+	}
+}
+
+void ConstMask::Set_Real_Circle(Float x0, Float y0, Float rh, Float d) {
+	Set_Ellipse(x0, y0, rh, rh / WHRATIO, d);
+}
+
+void Apply_ConstMask(Grid &A, const ConstMask &B) {
+	int n = A.rows(), m = A.cols();
+	Assert(B.dlt.rows() == n && B.dlt.cols() == m, "ConstBlock size not match");
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (B.msk(i, j) == 1) {
+				A(i, j) = B.dlt(i, j);
+			}
 		}
 	}
 }
@@ -46,7 +80,7 @@ void Truncate_Position(const Grid &A, Float &x, Float &y) {
 
 
 
-void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d) {
+/*void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d) {
 	int n = A.rows(), m = A.cols();
 	int i0 = Clip(int(x0*(n - 2)), 1, n - 2);
 	int i1 = Clip(int(x1*(n - 2)), 1, n - 2);
@@ -54,7 +88,7 @@ void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d) {
 	int j1 = Clip(int(y1*(m - 2)), 1, m - 2);
 	cout << "add block: " << i0 << " " << i1 << " " << j0 << " " << j1 << endl;
 	
-}
+}*/
 
 // Interpolate with respect to mere array index.
 Float Interpolate(const Grid &A, Float x, Float y) {

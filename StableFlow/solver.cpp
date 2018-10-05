@@ -6,10 +6,7 @@ Dye::Dye(int _r, int _g, int _b) {
 	rgb[2] = _b;
 	dens.resize(MESHH, MESHW);
 	dens.setZero();
-}
-
-void Dye::Add_Src(Float x0, Float x1, Float y0, Float y1, Float _d) {
-	srcs.push_back(ConstBlock(dens, x0, x1, y0, y1, _d));
+	src.resize(dens);
 }
 
 void GridCoor_to_ClipCoor(Float &i, Float &j, int H, int W, int screenid) {
@@ -43,18 +40,12 @@ void Solver::Init(void) {
 	U1.setZero();
 	V1.resize(MESHH, MESHW);
 	V1.setZero();
+	CU.resize(U);
+	CV.resize(V);
 	P.resize(MESHH, MESHW);
 	P.setZero();
 	div.resize(MESHH, MESHW);
 	div.setZero();
-}
-
-void Solver::Add_CU(Float x0, Float x1, Float y0, Float y1, Float _d){
-	CUs.push_back(ConstBlock(U, x0, x1, y0, y1, _d));
-}
-
-void Solver::Add_CV(Float x0, Float x1, Float y0, Float y1, Float _d){
-	CVs.push_back(ConstBlock(V, x0, x1, y0, y1, _d));
 }
 
 void Solver::Draw_Colors(int screenid) {

@@ -7,15 +7,13 @@ typedef Eigen::Triplet<Float> Tri;
 typedef Eigen::SparseMatrix<Float> SpMat;
 
 
-
 class Dye {
 public:
 	Grid dens;
-	vector<ConstBlock> srcs;
+	ConstMask src;
 	Float rgb[3];
 	Dye() {}
 	Dye(int _r, int _g, int _b);
-	void Add_Src(Float x0, Float x1, Float y0, Float y1, Float _d);
 };
 
 class Solver {
@@ -25,12 +23,10 @@ public:
 	Grid U1, V1;
 	Grid P,div;
 	vector<Dye> colors;
-	vector<ConstBlock> CUs;
-	vector<ConstBlock> CVs;
+	ConstMask CU;
+	ConstMask CV;
 	int step_time=0;
 	void Init(void);
-	void Add_CU(Float x0, Float x1, Float y0, Float y1, Float _d);
-	void Add_CV(Float x0, Float x1, Float y0, Float y1, Float _d);
 	void Draw_Colors(int screenid);
 	void Draw_Velocity_Field(const Grid & U, const Grid & V, int screenid);
 	void Draw(void);

@@ -34,7 +34,8 @@ typedef double Float;
 
 const Float PI = acos(-1.0);
 
-const int MESHW = 40, MESHH = 40;
+const int MESHW = 80, MESHH = 40;
+const Float WHRATIO = MESHW / MESHH;
 const Float DX = 0.01;
 const Float DY = 0.01;
 const Float H = 0.01;

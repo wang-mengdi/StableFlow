@@ -1,16 +1,19 @@
 #pragma once
 #include "shared.h"
 
-class ConstBlock {
+class ConstMask {
 public:
-	int n, m;
-	int i0, i1, j0, j1;
-	Float d;
-	ConstBlock() {}
-	ConstBlock(const Grid &A, Float x0, Float x1, Float y0, Float y1, Float _d);
+	Grid dlt;
+	Eigen::ArrayXXi msk;
+	ConstMask() {}
+	void resize(const Grid &A);
+	void Set_Box(Float x0, Float x1, Float y0, Float y1, Float d);
+	void Set_Ellipse(Float x0, Float y0, Float rh, Float rw, Float d);
+	void Set_Real_Circle(Float x0, Float y0, Float rh, Float d);
+	//ConstBlock(const Grid &A, Float x0, Float x1, Float y0, Float y1, Float _d);
 };
 
-void Apply_ConstBlock(Grid &A, const ConstBlock &B);
+void Apply_ConstMask(Grid &A, const ConstMask &B);
 //void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d);
 
 void Truncate_Position(const Grid &A, Float &x, Float &y);

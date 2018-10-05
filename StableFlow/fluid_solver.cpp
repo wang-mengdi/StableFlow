@@ -101,12 +101,8 @@ void Add_Source(Grid &f, const Grid &s) {
 }
 
 void Solver::Velocity_Step(void) {
-	for (int i = 0; i < CUs.size(); i++) {
-		Apply_ConstBlock(U, CUs[i]);
-	}
-	for (int i = 0; i < CVs.size(); i++) {
-		Apply_ConstBlock(V, CVs[i]);
-	}
+	Apply_ConstMask(U, CU);
+	Apply_ConstMask(V, CV);
 	Grid U0 = U;
 	Grid V0 = V;
 	Diffuse(X, U, U0, visc);
@@ -119,9 +115,7 @@ void Solver::Velocity_Step(void) {
 }
 
 void Solver::Density_Step(Dye &D) {
-	for (int i = 0; i < D.srcs.size(); i++) {
-		Apply_ConstBlock(D.dens, D.srcs[i]);
-	}
+	Apply_ConstMask(D.dens, D.src);
 	Grid D0 = D.dens;
 	Diffuse(N, D.dens, D0, diff);
 	D0 = D.dens;

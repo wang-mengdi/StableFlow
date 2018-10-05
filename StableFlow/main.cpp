@@ -4,11 +4,18 @@ Solver S;
 
 void Init(void) {
 	S.Init();
-	Dye dwhite = Dye(1, 1, 1);
-	dwhite.Add_Src(0.4, 0.6, 0.4, 0.6, 1);
-	S.colors.push_back(dwhite);
-	S.Add_CV(0.4, 0.6, 0.2, 0.3, 10);
-	S.Add_CV(0.4, 0.6, 0.7, 0.8, -10);
+	Dye dred = Dye(1, 0, 0);
+	dred.src.Set_Real_Circle(0.25, 0.25, 0.1, 1);
+	S.colors.push_back(dred);
+	Dye dblue = Dye(0, 0, 1);
+	dblue.src.Set_Real_Circle(0.75, 0.25, 0.1, 1);
+	S.colors.push_back(dblue);
+	S.CV.Set_Real_Circle(0.25, 0.25, 0.1, 10);
+	S.CU.Set_Real_Circle(0.25, 0.25, 0.1, 10);
+	S.CV.Set_Real_Circle(0.75, 0.25, 0.1, 10);
+	S.CU.Set_Real_Circle(0.75, 0.25, 0.1, -10);
+	//S.CV.Set_Box(0.4, 0.6, 0.2, 0.3, 10);
+	//S.CV.Set_Box(0.4, 0.6, 0.7, 0.8, -10);
 }
 
 

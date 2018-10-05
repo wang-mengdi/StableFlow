@@ -86,8 +86,6 @@ void Update_Pressure(Grid &U, Grid &V, const Grid &P) {
 
 void Project(Grid &U, Grid &V, Grid &P, Grid &div) {
 	Get_Pressure(P, U, V, div);
-	cout << "max div:" << div.abs().maxCoeff() << endl;
-	cout << "max P:" << P.abs().maxCoeff() << endl;
 	Update_Pressure(U, V, P);
 }
 

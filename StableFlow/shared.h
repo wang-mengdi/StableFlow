@@ -20,10 +20,7 @@
 #include <Eigen/Sparse>
 
 #ifdef OPENGL
-
-
 #include <GL/glut.h>
-
 #endif
 
 using namespace std;

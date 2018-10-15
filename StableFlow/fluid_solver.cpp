@@ -99,13 +99,16 @@ void Add_Source(Grid &f, const Grid &s) {
 }
 
 void Solver::Velocity_Step(void) {
+	Grid U0, V0;
 	Apply_ConstMask(U, CU);
 	Apply_ConstMask(V, CV);
-	Grid U0 = U;
-	Grid V0 = V;
+#ifdef DIFFUSION_ON
+	U0 = U;
+	V0 = V;
 	Diffuse(X, U, U0, visc);
 	Diffuse(Y, V, V0, visc);
 	Project(U, V, P, div);
+#endif
 	U0 = U, V0 = V;
 	Advect(X, U, U0, U0, V0);
 	Advect(Y, V, V0, U0, V0);
@@ -128,6 +131,6 @@ void Solver::Step_Fluid(void) {
 		Density_Step(colors[i]);
 	}
 	//cout << "density: " << colors[0].dens << endl;
-	//Get_Div(U, V, div);
-	//cout << "step done, max div:" << div.abs().maxCoeff() << endl;
+	Get_Div(U, V, div);
+	cout << "step done, max divergence:" << div.abs().maxCoeff() << endl;
 }

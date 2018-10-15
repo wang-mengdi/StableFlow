@@ -3,6 +3,7 @@
 #define OPENGL
 #define OPENMP
 #define NDEBUG
+//#define DIFFUSION_ON
 
 #include <iostream>
 #include <cstdio>

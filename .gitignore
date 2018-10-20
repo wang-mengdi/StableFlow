@@ -3,3 +3,5 @@ Debug/*
 .vs/*
 StableFlow/x64/*
 StableFlow/Debug/*
+StableFlow/images/*
+*.mov

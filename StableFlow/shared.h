@@ -24,6 +24,10 @@
 #include <GL/glut.h>
 #endif
 
+//NOTE!!! GL goes first, THEN Freeimage.
+#include "FreeImage.h"
+#pragma comment(lib,"FreeImage.lib")
+
 using namespace std;
 using namespace Eigen;
 typedef Eigen::ArrayXXd Grid;
@@ -54,6 +58,7 @@ const Float SCALE = 2;
 const int SHOWW = MESHW*SCALE, SHOWH = MESHH*SCALE;
 
 const int SHOW_FPS = 20;
+const int TOTAL_FRAME = SHOW_FPS * 30;
 
 void Assert(bool condition, const char *s);
 

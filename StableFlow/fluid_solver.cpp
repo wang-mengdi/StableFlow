@@ -162,7 +162,7 @@ void Get_Pressure(Grid &P, const Grid &U, const Grid &V, Grid &div) {
 
 	Grid L = Laplace(P);
 	//cout << "lap and grad diff norm: " << Grid_Norm(L - div) << endl;
-	//cout << "solved P 2norm: " << Grid_Norm(P) << endl;
+	cout << "solved P 2norm: " << Grid_Norm(P) << endl;
 }
 
 void Update_Pressure(Grid &U, Grid &V, const Grid &P) {

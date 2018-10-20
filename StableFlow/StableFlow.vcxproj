@@ -72,18 +72,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>D:\Codes\Projects\StableFlow\StableFlow\GL;D:\Codes\Projects\StableFlow\StableFlow;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Codes\Projects\StableFlow\StableFlow\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>D:\Codes\Projects\StableFlow\StableFlow;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>D:\Codes\Projects\StableFlow\StableFlow\GL;D:\Codes\Projects\StableFlow\StableFlow;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Codes\Projects\StableFlow\StableFlow\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>D:\Codes\Projects\StableFlow\StableFlow;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>D:\Codes\Projects\StableFlow\StableFlow\GL;D:\Codes\Projects\StableFlow\StableFlow;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Codes\Projects\StableFlow\StableFlow\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>D:\Codes\Projects\StableFlow\StableFlow;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>D:\Codes\Projects\StableFlow\StableFlow\GL;D:\Codes\Projects\StableFlow\StableFlow;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Codes\Projects\StableFlow\StableFlow\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>D:\Codes\Projects\StableFlow\StableFlow;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

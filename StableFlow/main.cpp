@@ -3,6 +3,7 @@
 Solver S;
 
 void Init(void) {
+	FreeImage_Initialise(TRUE);
 	Float r = 0.04;
 	Float v = 30;
 	Float h = 0.17;
@@ -34,12 +35,37 @@ void Plot(void) {
 	glutSwapBuffers();
 }
 
+void Save_Image(int step) {
+	int width = SHOWW;
+	int height = SHOWH * TOTAL_SCREEN;
 
+	static BYTE *pixels = (BYTE*)malloc(width * height * 3);
+
+	glReadPixels(0, 0, width, height, GL_BGR_EXT, GL_UNSIGNED_BYTE, pixels);
+
+	FIBITMAP *image = FreeImage_ConvertFromRawBits(pixels, width, height, 3 * width, 24, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, FALSE);
+
+	static char filename[256];
+	sprintf_s(filename, 256, "./images/%08d.png", step);
+
+	if (FreeImage_Save(FIF_PNG, image, filename, 0))
+		printf("Successfully saved!\n");
+	else
+		printf("Failed saving!\n");
+
+	FreeImage_Unload(image);
+
+	//free(pixels);
+}
 
 void Step_Time(int v) {
 	S.Step();
 	Plot();
+	Save_Image(S.step_time);
 	glutTimerFunc(1000 / SHOW_FPS, Step_Time, 1);
+	if (S.step_time >= TOTAL_FRAME) {
+		exit(0);
+	}
 }
 
 int main(int argc, char *argv[]) {

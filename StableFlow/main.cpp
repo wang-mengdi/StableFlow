@@ -12,15 +12,13 @@ void Init(void) {
 	Dye dred = Dye(1, 0, 0);
 	dred.src.Set_Real_Circle(x1,y1, r, 1);
 	S.colors.push_back(dred);
+	S.CV.Set_Real_Circle(x1, y1, r, v + 1);
+	S.CU.Set_Real_Circle(x1, y1, r, v);
 	Dye dblue = Dye(0, 0, 1);
 	dblue.src.Set_Real_Circle(x2,y2, r, 1);
 	S.colors.push_back(dblue);
-	S.CV.Set_Real_Circle(x1, y1, r, v + 1);
-	S.CU.Set_Real_Circle(x1, y1, r, v);
 	S.CV.Set_Real_Circle(x2, y2, r, v);
 	S.CU.Set_Real_Circle(x2, y2, r, -v);
-	//S.CV.Set_Box(0.4, 0.6, 0.2, 0.3, 10);
-	//S.CV.Set_Box(0.4, 0.6, 0.7, 0.8, -10);
 }
 
 

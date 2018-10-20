@@ -40,36 +40,129 @@ void Solver::Diffuse(AXIS ax, Grid &x, const Grid &b, Float diff) {
 	Jacobi_Solve(x, b, a, 1 + 4 * a, ax);
 }
 
-void Advect(AXIS ax, Grid &q, const Grid &q0, const Grid &U, const Grid &V) {
+Grid SL_Advect(AXIS ax, const Grid &q, const Grid &U, const Grid &V, DIFFTYPE dir) {
+	//Semi Lagrangian Advect
 	int n = q.rows(), m = q.cols();
+	Grid q1;
+	q1.resize(n, m);
+	q1.setZero();
 	for (int i = 1; i < n - 1; i++) {
 		for (int j = 1; j < m - 1; j++) {
-			Float x = i - DT * U(i, j), y = j - DT * V(i, j);
+			Float x, y;
+			if (dir == BACKWARD) {
+				x = i - DT * U(i, j), y = j - DT * V(i, j);
+			}
+			else if (dir == FORWARD) {
+				x = i + DT * U(i, j), y = j + DT * V(i, j);
+			}
 			x = max(x, 0.5);
 			x = min(x, n - 1.5);
 			y = max(y, 0.5);
 			y = min(y, m - 1.5);
-			q(i, j) = Interpolate(q0, x, y);
+			q1(i, j) = Interpolate(q, x, y);
 		}
 	}
-	Apply_Boundary_Condition(q, ax);
+	Apply_Boundary_Condition(q1, ax);
+	return q1;
+}
+
+Grid MacCormack(AXIS ax, const Grid &q, const Grid &U, const Grid &V) {
+	Grid q_est = SL_Advect(ax, q, U, V, BACKWARD);
+	Grid q_bck = SL_Advect(ax, q_est, U, V, FORWARD);
+	Grid err = q - q_bck;
+	return q_est + 0.5*err;
+}
+
+int Solve_Field_ID(const Grid &A, int i, int j) {
+	int n = A.rows(), m = A.cols();
+	Assert(1 <= i && i < n - 1, "i out of bound");
+	Assert(1 <= j && j < m - 1, "j out of bound");
+	i--, j--;
+	return i * (m - 2) + j;
+}
+
+void Load_Pressure_System(SpMat &A, Eigen::VectorXd &b, const Grid &div) {
+	const int dx[4] = { 1,-1,0,0 }, dy[4] = { 0,0,1,-1 };
+	int n = div.rows(), m = div.cols();
+	int numeq = (n - 2)*(m - 2);
+	Assert(A.rows() == numeq && A.cols() == numeq, "sparse matrix size not match");
+	vector<Tri> v;
+	for (int i = 1; i < n - 1; i++) {
+		for (int j = 1; j < m - 1; j++) {
+			Float ctr = -4;
+			int eid = Solve_Field_ID(div, i, j);
+			for (int d = 0; d < 4; d++) {
+				int i1 = i + dx[d], j1 = j + dy[d];
+				if (i1 == 0 || i1 == n - 1 || j1 == 0 || j1 == m - 1) {//boundary, it's the same as (i,j)
+					ctr += 1;
+				}
+				else {
+					int id1 = Solve_Field_ID(div, i1, j1);
+					v.push_back(Tri(eid, id1, 1));
+				}
+			}
+			v.push_back(Tri(eid, eid, ctr));
+			b(eid) = div(i, j);
+		}
+	}
+	A.setFromTriplets(v.begin(), v.end());
+}
+
+void Fill_Pressure_Solution(Grid &P, const VectorXd &x) {
+	int n = P.rows(), m = P.cols();
+	for (int i = 1; i < n - 1; i++) {
+		for (int j = 1; j < m - 1; j++) {
+			int eid = Solve_Field_ID(P, i, j);
+			P(i, j) = x(eid);
+		}
+	}
+	Apply_Boundary_Condition(P, N);
 }
 
 void Get_Div(const Grid &U, const Grid &V, Grid &div) {
 	int n = div.rows(), m = div.cols();
 	for (int i = 1; i < n - 1; i++) {
 		for (int j = 1; j < m - 1; j++) {
-			div(i, j) = -0.5f*(U(i + 1, j) - U(i - 1, j) + V(i, j + 1) - V(i, j - 1));
+			div(i, j) = 0.5f*(U(i + 1, j) - U(i - 1, j) + V(i, j + 1) - V(i, j - 1));
 		}
 	}
+	Apply_Boundary_Condition(div, N);
+}
+
+Grid Laplace(const Grid &P) {
+	int n = P.rows(), m = P.cols();
+	Grid lp(n, m);
+	for (int i = 1; i < n - 1; i++) {
+		for (int j = 1; j < m - 1; j++) {
+			lp(i, j) = P(i + 1, j) + P(i - 1, j) + P(i, j - 1) + P(i, j + 1) - 4 * P(i, j);
+		}
+	}
+	Apply_Boundary_Condition(lp, N);
+	return lp;
 }
 
 void Get_Pressure(Grid &P, const Grid &U, const Grid &V, Grid &div) {
 	int n = P.rows(), m = P.cols();
 	Get_Div(U, V, div);
 	Apply_Boundary_Condition(div, N);
-	P.setZero();
-	Jacobi_Solve(P, div, 1, 4, N);
+
+	int numeq = (n - 2)*(m - 2);
+	SpMat A(numeq, numeq);
+	VectorXd b(numeq);
+	Load_Pressure_System(A, b, div);
+	ConjugateGradient<SparseMatrix<Float>, Lower | Upper > pcg;
+	pcg.compute(A);
+	VectorXd X = pcg.solve(b);
+	VectorXd r = A * X - b;
+	//cout << "PCG residual norm: " << r.norm() << endl;
+	Fill_Pressure_Solution(P, X);
+
+	/*P.setZero();
+	Jacobi_Solve(P, -div, 1, 4, N);*/
+
+	Grid L = Laplace(P);
+	//cout << "lap and grad diff norm: " << Grid_Norm(L - div) << endl;
+	//cout << "solved P 2norm: " << Grid_Norm(P) << endl;
 }
 
 void Update_Pressure(Grid &U, Grid &V, const Grid &P) {
@@ -110,17 +203,22 @@ void Solver::Velocity_Step(void) {
 	Project(U, V, P, div);
 #endif
 	U0 = U, V0 = V;
-	Advect(X, U, U0, U0, V0);
-	Advect(Y, V, V0, U0, V0);
+	U = SL_Advect(X, U, U0, V0, BACKWARD);
+	V = SL_Advect(Y, V, U0, V0, BACKWARD);
+	//U = MacCormack(X, U, U0, V0);
+	//V = MacCormack(Y, V, U0, V0);
 	Project(U, V, P, div);
 }
 
 void Solver::Density_Step(Dye &D) {
 	Apply_ConstMask(D.dens, D.src);
-	Grid D0 = D.dens;
+	//Grid D0 = D.dens;
+#ifdef DIFFUSION_ON
 	Diffuse(N, D.dens, D0, diff);
-	D0 = D.dens;
-	Advect(N, D.dens, D0, U, V);
+#endif
+	//D0 = D.dens;
+	//D.dens = MacCormack(N, D.dens, U, V);
+	D.dens = SL_Advect(N, D.dens, U, V, BACKWARD);
 }
 
 void Solver::Step_Fluid(void) {
@@ -132,5 +230,5 @@ void Solver::Step_Fluid(void) {
 	}
 	//cout << "density: " << colors[0].dens << endl;
 	Get_Div(U, V, div);
-	cout << "step done, max divergence:" << div.abs().maxCoeff() << endl;
+	cout << "step done, divergence norm:" << Grid_Norm(div) << endl;
 }

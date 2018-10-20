@@ -1,6 +1,8 @@
 #pragma once
 #include "shared.h"
 
+Float Grid_Norm(const Grid &G);
+
 class ConstMask {
 public:
 	Grid dlt;

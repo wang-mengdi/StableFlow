@@ -1,5 +1,10 @@
 #include "gridmath.h"
 
+Float Grid_Norm(const Grid &G) {
+	MatrixXd M = G;
+	return M.lpNorm<2>();
+}
+
 template<typename T>
 T Clip(T a, T mn, T mx) {
 	a = max(a, mn);
@@ -77,8 +82,6 @@ void Truncate_Position(const Grid &A, Float &x, Float &y) {
 	if (y < 0.5) y = 0.5;
 	if (y > m - 1.5) y = m - 1.5;
 }
-
-
 
 /*void Add_Block(Grid &A, Float x0, Float x1, Float y0, Float y1, Float d) {
 	int n = A.rows(), m = A.cols();

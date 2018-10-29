@@ -19,6 +19,7 @@ public:
 class Solver {
 public:
 	//Currently we use traditional, not staggered mesh.
+	MFPCG<Float, DIAG> pcg;
 	Grid U, V;//x/y component of velocity
 	Grid U1, V1;
 	Grid P,div;
@@ -32,6 +33,10 @@ public:
 	void Draw(void);
 	void Step();
 	void Diffuse(AXIS ax, Grid & x, const Grid & b, Float diff);
+	void Load_Pressure_System(const Grid & div);
+	void Fill_Pressure_Solution(Grid & P);
+	void Get_Pressure(Grid & P, const Grid & U, const Grid & V, Grid & div);
+	void Project(Grid & U, Grid & V, Grid & P, Grid & div);
 	void Velocity_Step(void);
 	void Density_Step(Dye & D);
 	void Step_Fluid(void);

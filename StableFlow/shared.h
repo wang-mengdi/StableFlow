@@ -36,6 +36,7 @@ typedef double Float;
 
 const Float PI = acos(-1.0);
 
+// Parameters about physics
 const int MESHW = 200, MESHH = 100;
 const int FLUID_PTNUM = (MESHW - 2)*(MESHH - 2);
 const Float WHRATIO = MESHW / MESHH;
@@ -47,18 +48,21 @@ const Float rho = 1;
 const Float visc = 0;
 const Float diff = 0;
 
+// Parameters about solver
 const int JACOBI_STEP = 20;
-const int MAX_PCG_STEP = 100;
+const int MAX_PCG_STEP = 10000;
+const Float MFPCG_TOLERANCE = 1e-15;
 
+
+// enumerations
 enum DIFFTYPE { FORWARD, BACKWARD, CENTER };
 enum MASKTYPE { VALID, INVALID };
 enum AXIS { X, Y, N }; //N=neutral
 
+// Parameters of rendering
 const int TOTAL_SCREEN = 2;
-
 const Float SCALE = 2;
 const int SHOWW = MESHW*SCALE, SHOWH = MESHH*SCALE;
-
 const int SHOW_FPS = 20;
 const int TOTAL_FRAME = SHOW_FPS * 30;
 

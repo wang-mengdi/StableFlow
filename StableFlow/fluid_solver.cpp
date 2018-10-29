@@ -81,39 +81,48 @@ int Solve_Field_ID(const Grid &A, int i, int j) {
 	return i * (m - 2) + j;
 }
 
-void Load_Pressure_System(SpMat &A, Eigen::VectorXd &b, const Grid &div) {
-	const int dx[4] = { 1,-1,0,0 }, dy[4] = { 0,0,1,-1 };
+void Solver::Load_Pressure_System(const Grid &div) {
+	// Load the linear system of pressure in pcg
+	const int dx[4] = { 1,0 }, dy[4] = { 0,1 };
 	int n = div.rows(), m = div.cols();
 	int numeq = (n - 2)*(m - 2);
-	Assert(A.rows() == numeq && A.cols() == numeq, "sparse matrix size not match");
+	Assert(pcg.n == n - 2 && pcg.m == m - 2, "PCG size not match");
 	vector<Tri> v;
 	for (int i = 1; i < n - 1; i++) {
 		for (int j = 1; j < m - 1; j++) {
 			Float ctr = -4;
 			int eid = Solve_Field_ID(div, i, j);
-			for (int d = 0; d < 4; d++) {
+			for (int d = 0; d < 2; d++) {
 				int i1 = i + dx[d], j1 = j + dy[d];
 				if (i1 == 0 || i1 == n - 1 || j1 == 0 || j1 == m - 1) {//boundary, it's the same as (i,j)
 					ctr += 1;
 				}
 				else {
 					int id1 = Solve_Field_ID(div, i1, j1);
-					v.push_back(Tri(eid, id1, 1));
+					if (d == 0) {
+						pcg.Aplusi[eid] = 1;
+					}
+					else if (d == 1) {
+						pcg.Aplusj[eid] = 1;
+					}
+					//v.push_back(Tri(eid, id1, 1));
 				}
 			}
-			v.push_back(Tri(eid, eid, ctr));
-			b(eid) = div(i, j);
+			//v.push_back(Tri(eid, eid, ctr));
+			pcg.Adiag[eid] = ctr;
+			pcg.b[eid] = div(i, j);
+			//b(eid) = div(i, j);
 		}
 	}
-	A.setFromTriplets(v.begin(), v.end());
+	//A.setFromTriplets(v.begin(), v.end());
 }
 
-void Fill_Pressure_Solution(Grid &P, const VectorXd &x) {
+void Solver::Fill_Pressure_Solution(Grid &P) {
 	int n = P.rows(), m = P.cols();
 	for (int i = 1; i < n - 1; i++) {
 		for (int j = 1; j < m - 1; j++) {
 			int eid = Solve_Field_ID(P, i, j);
-			P(i, j) = x(eid);
+			P(i, j) = pcg.p[eid];
 		}
 	}
 	Apply_Boundary_Condition(P, N);
@@ -141,27 +150,29 @@ Grid Laplace(const Grid &P) {
 	return lp;
 }
 
-void Get_Pressure(Grid &P, const Grid &U, const Grid &V, Grid &div) {
+void Solver::Get_Pressure(Grid &P, const Grid &U, const Grid &V, Grid &div) {
 	int n = P.rows(), m = P.cols();
 	Get_Div(U, V, div);
 	Apply_Boundary_Condition(div, N);
 
 	int numeq = (n - 2)*(m - 2);
-	SpMat A(numeq, numeq);
-	VectorXd b(numeq);
-	Load_Pressure_System(A, b, div);
-	ConjugateGradient<SparseMatrix<Float>, Lower | Upper > pcg;
-	pcg.compute(A);
-	VectorXd X = pcg.solve(b);
-	VectorXd r = A * X - b;
+	//SpMat A(numeq, numeq);
+	//VectorXd b(numeq);
+	Load_Pressure_System(div);
+	//ConjugateGradient<SparseMatrix<Float>, Lower | Upper > pcg;
+	//pcg.compute(A);
+	//VectorXd X = pcg.solve(b);
+	//VectorXd r = A * X - b;
+	pcg.solve(MFPCG_TOLERANCE);
 	//cout << "PCG residual norm: " << r.norm() << endl;
-	Fill_Pressure_Solution(P, X);
+	Fill_Pressure_Solution(P);
 
 	/*P.setZero();
 	Jacobi_Solve(P, -div, 1, 4, N);*/
 
 	Grid L = Laplace(P);
-	//cout << "lap and grad diff norm: " << Grid_Norm(L - div) << endl;
+	cout << "lap and grad diff norm: " << Grid_Norm((L - div).block(1, 1, n - 2, m - 2)) << endl;
+	//cout << L - div << endl;
 	cout << "solved P 2norm: " << Grid_Norm(P) << endl;
 }
 
@@ -177,7 +188,7 @@ void Update_Pressure(Grid &U, Grid &V, const Grid &P) {
 	Apply_Boundary_Condition(V, Y);
 }
 
-void Project(Grid &U, Grid &V, Grid &P, Grid &div) {
+void Solver::Project(Grid &U, Grid &V, Grid &P, Grid &div) {
 	Get_Pressure(P, U, V, div);
 	Update_Pressure(U, V, P);
 }

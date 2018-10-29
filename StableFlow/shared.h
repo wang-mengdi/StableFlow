@@ -37,6 +37,7 @@ typedef double Float;
 const Float PI = acos(-1.0);
 
 const int MESHW = 200, MESHH = 100;
+const int FLUID_PTNUM = (MESHW - 2)*(MESHH - 2);
 const Float WHRATIO = MESHW / MESHH;
 const Float DX = 0.01;
 const Float DY = 0.01;
@@ -47,6 +48,7 @@ const Float visc = 0;
 const Float diff = 0;
 
 const int JACOBI_STEP = 20;
+const int MAX_PCG_STEP = 100;
 
 enum DIFFTYPE { FORWARD, BACKWARD, CENTER };
 enum MASKTYPE { VALID, INVALID };

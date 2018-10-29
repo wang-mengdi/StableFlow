@@ -3,6 +3,33 @@
 
 Float Grid_Norm(const Grid &G);
 
+enum PreConditioner { DIAG };
+
+template<typename T, PreConditioner prec>
+class MFPCG {
+public:
+	// See: Fluid simulation for computer graphics, Robert Bridson, Chapter 4.3
+	int n, m;
+	int size;
+	T *Adiag;
+	T *Aplusi;
+	T *Aplusj;
+	T *b;//RHS constant
+	T *p;//guess of answer
+	T *s//search vector
+	T *z;//auxillary vector
+	T *r;//residual
+	MFPCG();
+	~MFPCG();
+	int idx(int i, int j);
+	T Dot_Product(T * A, T * B);
+	T Norm_Inf(T *x);
+	void Apply_A_To(T * x, T * ax);
+	void Apply_Prec_To(T * x, T * px);
+	void Vector_Comb_To(T * a, T * b, T c, T * x);//x=a+b*c;
+	void PCG_run(T tolerance);
+};
+
 class ConstMask {
 public:
 	Grid dlt;

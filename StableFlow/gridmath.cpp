@@ -106,7 +106,7 @@ void MFPCG<T, prec>::PCG_run(T tolerance) {
 		T alpha = sigma / Dot_Product(z, s);
 		Vector_Comb_To(p, s, alpha, p);//p=p+alpha*s
 		Vector_Comb_To(r, z, -alpha, r);
-		if (Norm_Inf(r) <= tol) {
+		if (Norm_Inf(r) <= tolerance) {
 			break;
 		}
 		Apply_Prec_To(r, z);
@@ -116,8 +116,6 @@ void MFPCG<T, prec>::PCG_run(T tolerance) {
 		sigma = sigma1;
 	}
 }
-
-
 
 Float Grid_Norm(const Grid &G) {
 	MatrixXd M = G;

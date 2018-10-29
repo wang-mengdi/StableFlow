@@ -16,7 +16,7 @@ public:
 	T *Aplusj;
 	T *b;//RHS constant
 	T *p;//guess of answer
-	T *s//search vector
+	T *s;//search vector
 	T *z;//auxillary vector
 	T *r;//residual
 	MFPCG();

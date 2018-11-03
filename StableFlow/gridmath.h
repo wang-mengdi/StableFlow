@@ -128,6 +128,30 @@ MFPCG<T, prec>::~MFPCG() {
 
 template<typename T, PreConditioner prec>
 void MFPCG<T, prec>::solve(Float tolerance) {
+	SpMat MA(size, size);
+	VectorXd Mb(size);
+	for (int i = 0; i < size; i++) Mb(i) = b[i];
+	vector<Tri> v;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			int eid = idx(i, j);
+			v.push_back(Tri(eid, eid, Adiag[eid]));
+			if (i + 1 < n) {
+				int eid1 = idx(i + 1, j);
+				v.push_back(Tri(eid, eid1, Aplusi[eid]));
+			}
+			if (j + 1 < m) {
+				int eid1 = idx(i, j + 1);
+				v.push_back(Tri(eid, eid1, Aplusj[eid]));
+			}
+		}
+	}
+	MA.setFromTriplets(v.begin(), v.end());
+	ConjugateGradient<SparseMatrix<Float>, Upper > pcg;
+	pcg.compute(MA);
+	VectorXd X = pcg.solve(Mb);
+
+
 	for (int i = 0; i < size; i++) p[i] = 0;//initial guess p=0
 	for (int i = 0; i < size; i++) r[i] = b[i];//residual vector r=b
 	Apply_Prec_To(r, z);//z=applyPreconditioner(r)
@@ -151,6 +175,10 @@ void MFPCG<T, prec>::solve(Float tolerance) {
 	}
 	cout << "PCG run done, r=" << Norm_Inf(r) << endl;
 	// The calculated answer is p
+
+	VectorXd xp(size);
+	for (int i = 0; i < size; i++) xp(i) = p[i];
+	cout << (xp - X).cwiseAbs().maxCoeff() << endl;
 }
 
 class ConstMask {

@@ -87,17 +87,19 @@ void Solver::Load_Pressure_System(const Grid &div) {
 	int n = div.rows(), m = div.cols();
 	int numeq = (n - 2)*(m - 2);
 	Assert(pcg.n == n - 2 && pcg.m == m - 2, "PCG size not match");
-	vector<Tri> v;
+	//vector<Tri> v;
 	for (int i = 1; i < n - 1; i++) {
 		for (int j = 1; j < m - 1; j++) {
 			Float ctr = -4;
+			//boundary, it's the same as (i,j)
+			if (i == 1) ctr += 1;
+			if (j == 1) ctr += 1;
+			if (i == n - 2) ctr += 1;
+			if (j == m - 2) ctr += 1;
 			int eid = Solve_Field_ID(div, i, j);
 			for (int d = 0; d < 2; d++) {
 				int i1 = i + dx[d], j1 = j + dy[d];
-				if (i1 == 0 || i1 == n - 1 || j1 == 0 || j1 == m - 1) {//boundary, it's the same as (i,j)
-					ctr += 1;
-				}
-				else {
+				if (i1 < n - 1 && j1 < m - 1) { // i1, j1 are not less than i, j
 					int id1 = Solve_Field_ID(div, i1, j1);
 					if (d == 0) {
 						pcg.Aplusi[eid] = 1;

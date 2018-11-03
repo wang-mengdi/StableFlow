@@ -29,10 +29,13 @@
 #pragma comment(lib,"FreeImage.lib")
 
 using namespace std;
+
 using namespace Eigen;
 typedef Eigen::ArrayXXd Grid;
 typedef char BYT;
 typedef double Float;
+typedef Eigen::Triplet<Float> Tri;
+typedef Eigen::SparseMatrix<Float> SpMat;
 
 const Float PI = acos(-1.0);
 

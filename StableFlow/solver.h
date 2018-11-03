@@ -3,8 +3,7 @@
 #include "gridmath.h"
 //#include "fiber.h"
 
-typedef Eigen::Triplet<Float> Tri;
-typedef Eigen::SparseMatrix<Float> SpMat;
+
 
 
 class Dye {

@@ -5,7 +5,7 @@ Solver S;
 void Init(void) {
 	FreeImage_Initialise(TRUE);
 	Float r = 0.04;
-	Float v = 5;
+	Float v = 30;
 	Float h = 0.17;
 	Float x1 = 0.5 - h, y1 = 0.1;
 	Float x2 = 0.5 + h, y2 = 0.1;
